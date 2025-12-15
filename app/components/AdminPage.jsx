@@ -38,9 +38,6 @@ export default function AdminPage({
           >
             Acceder
           </button>
-          <p className="text-xs text-gray-500 mt-4 text-center">
-            Contraseña: urblift2024
-          </p>
         </div>
       </div>
     );
