@@ -22,7 +22,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link rel="icon" href="/Logo.svg" type="image/svg+xml" />
-        <title>URBLIFT - Elevamiento Urbano</title>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
