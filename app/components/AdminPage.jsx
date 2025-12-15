@@ -1,5 +1,7 @@
 // "use client";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit3, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { categoriesService } from "../../lib/supabase";
 
 export default function AdminPage({
   isAdmin,
@@ -17,6 +19,104 @@ export default function AdminPage({
   updateProduct,
   cancelEditing,
 }) {
+  const [categories, setCategories] = useState([]);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [newCategory, setNewCategory] = useState({
+    id: "",
+    name: "",
+    icon: "",
+  });
+
+  // Load categories from Supabase on component mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await categoriesService.getAllCategories();
+        // If no categories exist, create default ones
+        if (data.length === 0) {
+          const defaultCategories = [
+            { id: "all", name: "Todos", icon: "🎨" },
+            { id: "wildstyle", name: "Wildstyle", icon: "🎨" },
+            { id: "throw-up", name: "Throw-up", icon: "🖌️" },
+            { id: "tag", name: "Tag", icon: "🏷️" },
+            { id: "piece", name: "Piece", icon: "🖼️" },
+            { id: "abstracto", name: "Abstracto", icon: "🌌" },
+          ];
+          // Create default categories in Supabase
+          for (const cat of defaultCategories) {
+            await categoriesService.createCategory(cat);
+          }
+          setCategories(defaultCategories);
+        } else {
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error("Error loading categories:", error);
+        // Fallback to default categories
+        const defaultCategories = [
+          { id: "all", name: "Todos", icon: "🎨" },
+          { id: "wildstyle", name: "Wildstyle", icon: "🎨" },
+          { id: "throw-up", name: "Throw-up", icon: "🖌️" },
+          { id: "tag", name: "Tag", icon: "🏷️" },
+          { id: "piece", name: "Piece", icon: "🖼️" },
+          { id: "abstracto", name: "Abstracto", icon: "🌌" },
+        ];
+        setCategories(defaultCategories);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  const addCategory = async () => {
+    if (!newCategory.id || !newCategory.name) {
+      alert("ID y nombre son requeridos");
+      return;
+    }
+    try {
+      await categoriesService.createCategory(newCategory);
+      setCategories([...categories, newCategory]);
+      setNewCategory({ id: "", name: "", icon: "" });
+    } catch (error) {
+      console.error("Error creating category:", error);
+      alert("Error al crear la categoría");
+    }
+  };
+
+  const updateCategory = async () => {
+    if (!editingCategory.name) {
+      alert("Nombre es requerido");
+      return;
+    }
+    try {
+      await categoriesService.updateCategory(editingCategory.id, {
+        name: editingCategory.name,
+        icon: editingCategory.icon,
+      });
+      const updatedCategories = categories.map((cat) =>
+        cat.id === editingCategory.id ? editingCategory : cat
+      );
+      setCategories(updatedCategories);
+      setEditingCategory(null);
+    } catch (error) {
+      console.error("Error updating category:", error);
+      alert("Error al actualizar la categoría");
+    }
+  };
+
+  const deleteCategory = async (categoryId) => {
+    if (confirm("¿Eliminar esta categoría?")) {
+      try {
+        await categoriesService.deleteCategory(categoryId);
+        const updatedCategories = categories.filter(
+          (cat) => cat.id !== categoryId
+        );
+        setCategories(updatedCategories);
+      } catch (error) {
+        console.error("Error deleting category:", error);
+        alert("Error al eliminar la categoría");
+      }
+    }
+  };
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4">
@@ -327,6 +427,149 @@ export default function AdminPage({
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Categories Management */}
+        <div className="bg-[#1a1a1a] border-4 border-[#00BCD4] p-8 mt-12">
+          <h3 className="text-3xl font-black text-[#00BCD4] mb-6 uppercase">
+            Gestionar Categorías
+          </h3>
+
+          {/* Add New Category */}
+          <div className="mb-8">
+            <h4 className="text-xl font-black text-white mb-4 uppercase">
+              Agregar Nueva Categoría
+            </h4>
+            <div className="grid md:grid-cols-3 gap-4 mb-4">
+              <input
+                type="text"
+                placeholder="ID (ej: nueva-categoria)"
+                value={newCategory.id}
+                onChange={(e) =>
+                  setNewCategory({ ...newCategory, id: e.target.value })
+                }
+                className="bg-white border-2 px-4 py-3 font-bold text-[#0A0A0A] focus:outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Nombre (ej: Nueva Categoría)"
+                value={newCategory.name}
+                onChange={(e) =>
+                  setNewCategory({ ...newCategory, name: e.target.value })
+                }
+                className="bg-white border-2 px-4 py-3 font-bold text-[#0A0A0A] focus:outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Icono (ej: 🎨)"
+                value={newCategory.icon}
+                onChange={(e) =>
+                  setNewCategory({ ...newCategory, icon: e.target.value })
+                }
+                className="bg-white border-2 px-4 py-3 font-bold text-[#0A0A0A] focus:outline-none"
+              />
+            </div>
+            <button
+              onClick={addCategory}
+              className="bg-[#00BCD4] text-[#0A0A0A] px-6 py-3 font-black uppercase hover:scale-105 transition-transform flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Agregar Categoría
+            </button>
+          </div>
+
+          {/* Edit Category */}
+          {editingCategory && (
+            <div className="mb-8">
+              <h4 className="text-xl font-black text-white mb-4 uppercase">
+                Editando: {editingCategory.name}
+              </h4>
+              <div className="grid md:grid-cols-3 gap-4 mb-4">
+                <input
+                  type="text"
+                  placeholder="ID"
+                  value={editingCategory.id}
+                  disabled
+                  className="bg-gray-300 border-2 px-4 py-3 font-bold text-[#0A0A0A] focus:outline-none"
+                />
+                <input
+                  type="text"
+                  placeholder="Nombre"
+                  value={editingCategory.name}
+                  onChange={(e) =>
+                    setEditingCategory({
+                      ...editingCategory,
+                      name: e.target.value,
+                    })
+                  }
+                  className="bg-white border-2 px-4 py-3 font-bold text-[#0A0A0A] focus:outline-none"
+                />
+                <input
+                  type="text"
+                  placeholder="Icono"
+                  value={editingCategory.icon}
+                  onChange={(e) =>
+                    setEditingCategory({
+                      ...editingCategory,
+                      icon: e.target.value,
+                    })
+                  }
+                  className="bg-white border-2 px-4 py-3 font-bold text-[#0A0A0A] focus:outline-none"
+                />
+              </div>
+              <div className="flex gap-4">
+                <button
+                  onClick={updateCategory}
+                  className="bg-[#76FF03] text-[#0A0A0A] px-6 py-3 font-black uppercase hover:scale-105 transition-transform"
+                >
+                  Actualizar
+                </button>
+                <button
+                  onClick={() => setEditingCategory(null)}
+                  className="bg-gray-600 text-white px-6 py-3 font-black uppercase hover:scale-105 transition-transform"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Categories List */}
+          <div className="space-y-4">
+            <h4 className="text-xl font-black text-white mb-4 uppercase">
+              Categorías Existentes
+            </h4>
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                className="bg-[#2a2a2a] border-2 border-gray-600 p-4 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-2xl">{category.icon}</span>
+                  <div>
+                    <h5 className="text-lg font-black text-white uppercase">
+                      {category.name}
+                    </h5>
+                    <p className="text-gray-400 text-sm">ID: {category.id}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setEditingCategory(category)}
+                    className="bg-[#00BCD4] text-[#0A0A0A] p-2 hover:scale-110 transition-transform"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => deleteCategory(category.id)}
+                    className="bg-[#FF5722] text-white p-2 hover:scale-110 transition-transform"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

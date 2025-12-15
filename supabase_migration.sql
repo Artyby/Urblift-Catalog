@@ -7,6 +7,7 @@
 DROP TABLE IF EXISTS cart_items CASCADE;
 DROP TABLE IF EXISTS product_images CASCADE;
 DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS categories CASCADE;
 
 -- Tabla de productos
 CREATE TABLE products (
@@ -31,6 +32,15 @@ CREATE TABLE IF NOT EXISTS product_images (
     image_url TEXT NOT NULL,
     sort_order INTEGER DEFAULT 1,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tabla de categorías
+CREATE TABLE categories (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    icon TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Tabla de elementos del carrito (para persistencia del carrito)
@@ -77,6 +87,17 @@ INSERT INTO products (id, name, description, price, old_price, is_available, is_
 ('7', 'Camiseta "Mural de Fe"', 'Inspirada en el arte callejero. Cada prenda cuenta una historia de redención y esperanza.', 28.99, null, true, false, 'https://i.pinimg.com/1200x/41/ec/b3/41ecb3ac10a424bdadddefdedf2d046e.jpg', 'camisetas'),
 ('8', 'Camiseta "Renacido"', 'Diseño impactante con colores vibrantes. Declara tu nueva identidad en Cristo con orgullo.', 29.99, null, true, false, 'https://i.pinimg.com/736x/e8/50/c1/e850c16529153c649054269cf653d5d7.jpg', 'camisetas');
 
+-- Datos iniciales de categorías
+INSERT INTO categories (id, name, icon) VALUES
+('all', 'Todos', '🎨'),
+('camisetas', 'Camisetas', '👕'),
+('hoodies', 'Hoodies', '🧥'),
+('wildstyle', 'Wildstyle', '🎨'),
+('throw-up', 'Throw-up', '🖌️'),
+('tag', 'Tag', '🏷️'),
+('piece', 'Piece', '🖼️'),
+('abstracto', 'Abstracto', '🌌');
+
 -- Datos iniciales de imágenes de productos
 INSERT INTO product_images (product_id, image_url, sort_order) VALUES
 ('1', 'https://i.pinimg.com/1200x/95/55/c8/9555c895b3b806e25e15ecc762c16bde.jpg', 1),
@@ -93,8 +114,10 @@ INSERT INTO product_images (product_id, image_url, sort_order) VALUES
 -- ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 -- ALTER TABLE product_images ENABLE ROW LEVEL SECURITY;
 -- ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 
 -- Políticas básicas (permitir todo por ahora)
 -- CREATE POLICY "Allow all operations on products" ON products FOR ALL USING (true);
 -- CREATE POLICY "Allow all operations on product_images" ON product_images FOR ALL USING (true);
 -- CREATE POLICY "Allow all operations on cart_items" ON cart_items FOR ALL USING (true);
+-- CREATE POLICY "Allow all operations on categories" ON categories FOR ALL USING (true);

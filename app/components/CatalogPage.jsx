@@ -1,7 +1,8 @@
 "use client";
 import { Search, Filter, Grid, LayoutGrid } from "lucide-react";
 import ProductCard from "./ProductCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { categoriesService } from "../../lib/supabase";
 
 export default function CatalogPage({
   products,
@@ -14,15 +15,30 @@ export default function CatalogPage({
 }) {
   const [viewMode, setViewMode] = useState("grid"); // 'grid' o 'list'
   const [showFilters, setShowFilters] = useState(false);
+  const [styleTags, setStyleTags] = useState([]);
 
-  const styleTags = [
-    { id: "all", name: "Todos", icon: "🎨" },
-    { id: "camisetas", name: "Camisetas", icon: "👕" },
-    { id: "hoodies", name: "Hoodies", icon: "🧥" },
-    { id: "accesorios", name: "Accesorios", icon: "🧢" },
-    { id: "nuevos", name: "Nuevos", icon: "✨" },
-    { id: "promos", name: "Promos", icon: "🔥" },
-  ];
+  // Load categories from Supabase on component mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await categoriesService.getAllCategories();
+        setStyleTags(data);
+      } catch (error) {
+        console.error("Error loading categories:", error);
+        // Fallback to default categories
+        const defaultCategories = [
+          { id: "all", name: "Todos", icon: "🎨" },
+          { id: "wildstyle", name: "Wildstyle", icon: "🎨" },
+          { id: "throw-up", name: "Throw-up", icon: "🖌️" },
+          { id: "tag", name: "Tag", icon: "🏷️" },
+          { id: "piece", name: "Piece", icon: "🖼️" },
+          { id: "abstracto", name: "Abstracto", icon: "🌌" },
+        ];
+        setStyleTags(defaultCategories);
+      }
+    };
+    loadCategories();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0A0A0A]">
@@ -52,10 +68,10 @@ export default function CatalogPage({
       </section>
 
       {/* Barra de información importante */}
-      <div className="bg-gradient-to-r from-[#FF5722] via-[#76FF03] to-[#00BCD4] py-4">
+      <div className="bg-gradient-to-r from-[#FF5722]  to-[#000000] py-4">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-wrap justify-center gap-8 text-[#0A0A0A] font-black text-sm uppercase">
-            <span>🚚 Envío Gratis +$50</span>
+          <div className="flex flex-wrap justify-center gap-8 text-[#ffffff] font-black text-sm uppercase">
+            <span>🚚 Envío Gratis +$8,000 en RD</span>
             <span>✨ Nuevos Diseños Semanales</span>
             <span>🎁 15% OFF Primera Compra</span>
             <span>🔥 Stock Limitado</span>
