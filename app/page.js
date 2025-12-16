@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import LandingPage from "./components/LandingPage";
@@ -12,6 +13,8 @@ import CartSidebar from "./components/CartSidebar";
 import { productService, cartService } from "../lib/supabase";
 
 export default function UrbLiftCatalog() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState("landing");
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
@@ -40,12 +43,30 @@ export default function UrbLiftCatalog() {
 
   const ADMIN_PASSWORD = "urblift2024";
 
-  // Verificar hash para acceso admin
+  // Verificar hash para acceso admin y parámetros de producto
   useEffect(() => {
     if (window.location.hash === "#admin") {
       setCurrentPage("admin");
     }
-  }, []);
+
+    // Verificar si hay un producto en la URL
+    const productId = searchParams.get("product");
+    if (productId && products.length > 0) {
+      const product = products.find((p) => p.id === productId);
+      if (product) {
+        setSelectedProduct(product);
+        setCurrentPage("catalog");
+        // Limpiar la URL después de abrir el modal
+        setTimeout(() => {
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
+        }, 100);
+      }
+    }
+  }, [searchParams, products]);
 
   // Generar ID único para el carrito si no existe
   const [cartId, setCartId] = useState(() => {

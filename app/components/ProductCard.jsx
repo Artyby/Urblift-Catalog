@@ -4,6 +4,14 @@ export default function ProductCard({ product, onSelect, onAddToCart }) {
       ? [product.main_image_url, ...product.images]
       : [product.main_image_url];
 
+  const handleShare = (e) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}${window.location.pathname}?product=${product.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      alert("¡Link del producto copiado al portapapeles!");
+    });
+  };
+
   return (
     <div
       className="group cursor-pointer relative"
@@ -102,9 +110,17 @@ export default function ProductCard({ product, onSelect, onAddToCart }) {
 
         {/* Hover info adicional */}
         <div className="absolute inset-x-0 bottom-0 p-4 bg-[#FF5722] transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          <p className="text-white font-black text-center uppercase text-sm">
-            Click para ver detalles →
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-white font-black uppercase text-sm">
+              Click para ver detalles →
+            </p>
+            <button
+              onClick={handleShare}
+              className="bg-[#76FF03] text-[#0A0A0A] px-3 py-1 font-black text-xs uppercase hover:scale-110 transition-transform"
+            >
+              📤 Compartir
+            </button>
+          </div>
         </div>
       </div>
     </div>

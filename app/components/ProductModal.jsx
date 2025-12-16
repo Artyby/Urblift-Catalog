@@ -256,12 +256,26 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                 Agregar al Carrito - ${(product.price * quantity).toFixed(2)}
               </button>
 
-              <button
-                onClick={onClose}
-                className="w-full border-4 border-[#76FF03] text-[#76FF03] py-4 text-lg font-black hover:bg-[#76FF03] hover:text-[#0A0A0A] transition-all uppercase rounded-lg"
-              >
-                Seguir Comprando
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}${window.location.pathname}?product=${product.id}`;
+                    navigator.clipboard.writeText(url).then(() => {
+                      alert("¡Link del producto copiado al portapapeles!");
+                    });
+                  }}
+                  className="flex-1 bg-[#76FF03] text-[#0A0A0A] py-4 text-lg font-black hover:scale-105 transition-transform uppercase rounded-lg"
+                >
+                  📤 Compartir
+                </button>
+
+                <button
+                  onClick={onClose}
+                  className="flex-1 border-4 border-[#76FF03] text-[#76FF03] py-4 text-lg font-black hover:bg-[#76FF03] hover:text-[#0A0A0A] transition-all uppercase rounded-lg"
+                >
+                  Seguir Comprando
+                </button>
+              </div>
             </div>
           </div>
         </div>
