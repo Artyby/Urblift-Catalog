@@ -4,12 +4,41 @@ export default function ProductCard({ product, onSelect, onAddToCart }) {
       ? [product.main_image_url, ...product.images]
       : [product.main_image_url];
 
-  const handleShare = (e) => {
+  const handleShare = async (e) => {
     e.stopPropagation();
     const url = `${window.location.origin}${window.location.pathname}?product=${product.id}`;
-    navigator.clipboard.writeText(url).then(() => {
-      alert("¡Link del producto copiado al portapapeles!");
-    });
+    try {
+      await navigator.clipboard.writeText(url);
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "¡Enlace copiado!",
+        text: "El link del producto ha sido copiado al portapapeles",
+        icon: "success",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+        confirmButtonText: "¡Perfecto!",
+        timer: 2000,
+        timerProgressBar: true,
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      });
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo copiar el enlace. Inténtalo manualmente.",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
+    }
   };
 
   return (
