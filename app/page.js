@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
@@ -12,7 +12,7 @@ import ProductModal from "./components/ProductModal";
 import CartSidebar from "./components/CartSidebar";
 import { productService, cartService } from "../lib/supabase";
 
-export default function UrbLiftCatalog() {
+function UrbLiftCatalogContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState("landing");
@@ -462,5 +462,26 @@ export default function UrbLiftCatalog() {
         sendWhatsAppOrder={sendWhatsAppOrder}
       />
     </div>
+  );
+}
+
+export default function UrbLiftCatalog() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center gap-0">
+          <img
+            src="/Logo.svg"
+            alt="URBLIFT Logo"
+            className="w-85 h-85 animate-bounce m-0"
+          />
+          <div className="text-[#FF5722] text-6xl font-black animate-pulse -mt-4">
+            URBLIFT
+          </div>
+        </div>
+      }
+    >
+      <UrbLiftCatalogContent />
+    </Suspense>
   );
 }
