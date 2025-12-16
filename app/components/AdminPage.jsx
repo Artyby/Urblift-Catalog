@@ -69,22 +69,58 @@ export default function AdminPage({
 
   const addCategory = async () => {
     if (!newCategory.id || !newCategory.name) {
-      alert("ID y nombre son requeridos");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "ID y nombre son requeridos",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
       return;
     }
     try {
       await categoriesService.createCategory(newCategory);
       setCategories([...categories, newCategory]);
       setNewCategory({ id: "", name: "", icon: "" });
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "¡Éxito!",
+        text: "Categoría creada exitosamente",
+        icon: "success",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+        confirmButtonText: "¡Perfecto!",
+        timer: 2000,
+        timerProgressBar: true,
+      });
     } catch (error) {
       console.error("Error creating category:", error);
-      alert("Error al crear la categoría");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "Error al crear la categoría",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
     }
   };
 
   const updateCategory = async () => {
     if (!editingCategory.name) {
-      alert("Nombre es requerido");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "Nombre es requerido",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
       return;
     }
     try {
@@ -97,23 +133,75 @@ export default function AdminPage({
       );
       setCategories(updatedCategories);
       setEditingCategory(null);
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "¡Éxito!",
+        text: "Categoría actualizada exitosamente",
+        icon: "success",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+        confirmButtonText: "¡Perfecto!",
+        timer: 2000,
+        timerProgressBar: true,
+      });
     } catch (error) {
       console.error("Error updating category:", error);
-      alert("Error al actualizar la categoría");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "Error al actualizar la categoría",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
     }
   };
 
   const deleteCategory = async (categoryId) => {
-    if (confirm("¿Eliminar esta categoría?")) {
+    const Swal = (await import("sweetalert2")).default;
+    const result = await Swal.fire({
+      title: "¿Eliminar esta categoría?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      background: "#1a1a1a",
+      color: "#ffffff",
+      confirmButtonColor: "#FF5722",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonColor: "#00BCD4",
+      cancelButtonText: "Cancelar",
+      showCancelButton: true,
+    });
+
+    if (result.isConfirmed) {
       try {
         await categoriesService.deleteCategory(categoryId);
         const updatedCategories = categories.filter(
           (cat) => cat.id !== categoryId
         );
         setCategories(updatedCategories);
+        Swal.fire({
+          title: "¡Eliminado!",
+          text: "La categoría ha sido eliminada exitosamente",
+          icon: "success",
+          background: "#1a1a1a",
+          color: "#ffffff",
+          confirmButtonColor: "#FF5722",
+          confirmButtonText: "¡Perfecto!",
+          timer: 2000,
+          timerProgressBar: true,
+        });
       } catch (error) {
         console.error("Error deleting category:", error);
-        alert("Error al eliminar la categoría");
+        Swal.fire({
+          title: "Error",
+          text: "Error al eliminar la categoría",
+          icon: "error",
+          background: "#1a1a1a",
+          color: "#ffffff",
+          confirmButtonColor: "#FF5722",
+        });
       }
     }
   };
@@ -153,7 +241,7 @@ export default function AdminPage({
           ADMINISTRACIÓN
         </h2>
 
-        <div className="bg-[#1a1a1a] border-4 border-[#76FF03] p-8 mb-12">
+        <div className="bg-[#1a1a1a] border-4 border-[#76FF03] p-8 mb-12 text-black">
           <h3 className="text-3xl font-black text-[#76FF03] mb-6 uppercase">
             {editingProduct ? "Editar Producto" : "Nuevo Producto"}
           </h3>
@@ -228,11 +316,13 @@ export default function AdminPage({
             }}
             className="w-full bg-white border-2 px-4 py-3 font-bold mb-4 focus:outline-none"
           >
-            <option value="wildstyle">Wildstyle</option>
-            <option value="throw-up">Throw-up</option>
-            <option value="tag">Tag</option>
-            <option value="piece">Piece</option>
-            <option value="abstracto">Abstracto</option>
+            {categories
+              .filter((cat) => cat.id !== "all") // Exclude "all" category from product creation
+              .map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.icon} {category.name}
+                </option>
+              ))}
           </select>
           <input
             type="text"

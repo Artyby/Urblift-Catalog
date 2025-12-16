@@ -147,7 +147,7 @@ function UrbLiftCatalogContent() {
     }
   };
 
-  const addToCart = (product) => {
+  const addToCart = async (product) => {
     const cartId =
       product.cartId || `${product.id}-${product.selectedSize || "M"}`;
     const existingItem = cart.find((item) => item.cartId === cartId);
@@ -174,12 +174,27 @@ function UrbLiftCatalogContent() {
     setCart(newCart);
     saveCart(newCart);
 
-    // Feedback visual
-    alert(
-      `✓ ${product.name} (Talla ${
+    // Feedback visual con SweetAlert2
+    const Swal = (await import("sweetalert2")).default;
+    Swal.fire({
+      title: "¡Producto agregado!",
+      text: `${product.name} (Talla ${
         product.selectedSize || "M"
-      }) agregado al carrito`
-    );
+      }) ha sido agregado al carrito`,
+      icon: "success",
+      background: "#1a1a1a",
+      color: "#ffffff",
+      confirmButtonColor: "#FF5722",
+      confirmButtonText: "¡Perfecto!",
+      timer: 2000,
+      timerProgressBar: true,
+      showClass: {
+        popup: "animate__animated animate__fadeInDown",
+      },
+      hideClass: {
+        popup: "animate__animated animate__fadeOutUp",
+      },
+    });
   };
 
   const updateQuantity = (cartId, change) => {
@@ -232,19 +247,35 @@ function UrbLiftCatalogContent() {
     setContactForm({ name: "", email: "", message: "" });
   };
 
-  const handleAdminLogin = () => {
+  const handleAdminLogin = async () => {
     if (adminPassword === ADMIN_PASSWORD) {
       setIsAdmin(true);
       setCurrentPage("admin");
       setAdminPassword("");
     } else {
-      alert("Contraseña incorrecta");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "Contraseña incorrecta",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
     }
   };
 
   const createProduct = async () => {
     if (!newProduct.name || !newProduct.price) {
-      alert("Nombre y precio son requeridos");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "Nombre y precio son requeridos",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
       return;
     }
 
@@ -278,16 +309,43 @@ function UrbLiftCatalogContent() {
         images: [],
       });
 
-      alert("Producto creado exitosamente");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "¡Éxito!",
+        text: "Producto creado exitosamente",
+        icon: "success",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+        confirmButtonText: "¡Perfecto!",
+        timer: 2000,
+        timerProgressBar: true,
+      });
     } catch (error) {
       console.error("Error creating product:", error);
-      alert("Error al crear el producto");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "Error al crear el producto",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
     }
   };
 
   const updateProduct = async () => {
     if (!editingProduct.name || !editingProduct.price) {
-      alert("Nombre y precio son requeridos");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "Nombre y precio son requeridos",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
       return;
     }
 
@@ -317,10 +375,29 @@ function UrbLiftCatalogContent() {
 
       setEditingProduct(null);
 
-      alert("Producto actualizado exitosamente");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "¡Éxito!",
+        text: "Producto actualizado exitosamente",
+        icon: "success",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+        confirmButtonText: "¡Perfecto!",
+        timer: 2000,
+        timerProgressBar: true,
+      });
     } catch (error) {
       console.error("Error updating product:", error);
-      alert("Error al actualizar el producto");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "Error al actualizar el producto",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
     }
   };
 
@@ -329,15 +406,46 @@ function UrbLiftCatalogContent() {
   };
 
   const deleteProduct = async (productId) => {
-    if (!confirm("¿Eliminar este producto?")) return;
+    const Swal = (await import("sweetalert2")).default;
+    const result = await Swal.fire({
+      title: "¿Eliminar este producto?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      background: "#1a1a1a",
+      color: "#ffffff",
+      confirmButtonColor: "#FF5722",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      showCancelButton: true,
+      cancelButtonColor: "#6c757d",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       await productService.deleteProduct(productId);
       setProducts(products.filter((p) => p.id !== productId));
-      alert("Producto eliminado exitosamente");
+      Swal.fire({
+        title: "¡Eliminado!",
+        text: "Producto eliminado exitosamente",
+        icon: "success",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+        confirmButtonText: "¡Perfecto!",
+        timer: 2000,
+        timerProgressBar: true,
+      });
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("Error al eliminar el producto");
+      Swal.fire({
+        title: "Error",
+        text: "Error al eliminar el producto",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
     }
   };
 
@@ -357,7 +465,15 @@ function UrbLiftCatalogContent() {
       );
     } catch (error) {
       console.error("Error updating product:", error);
-      alert("Error al actualizar el producto");
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        title: "Error",
+        text: "Error al actualizar el producto",
+        icon: "error",
+        background: "#1a1a1a",
+        color: "#ffffff",
+        confirmButtonColor: "#FF5722",
+      });
     }
   };
 

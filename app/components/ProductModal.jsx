@@ -258,10 +258,20 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
               <div className="flex gap-4">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     const url = `${window.location.origin}${window.location.pathname}?product=${product.id}`;
-                    navigator.clipboard.writeText(url).then(() => {
-                      alert("¡Link del producto copiado al portapapeles!");
+                    await navigator.clipboard.writeText(url);
+                    const Swal = (await import("sweetalert2")).default;
+                    Swal.fire({
+                      title: "¡Copiado!",
+                      text: "Link del producto copiado al portapapeles",
+                      icon: "success",
+                      background: "#1a1a1a",
+                      color: "#ffffff",
+                      confirmButtonColor: "#FF5722",
+                      confirmButtonText: "¡Perfecto!",
+                      timer: 2000,
+                      timerProgressBar: true,
                     });
                   }}
                   className="flex-1 bg-[#76FF03] text-[#0A0A0A] py-4 text-lg font-black hover:scale-105 transition-transform uppercase rounded-lg"
