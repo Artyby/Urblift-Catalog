@@ -356,13 +356,14 @@ export default function CatalogPage({
                 ¿Tenés dudas?
               </h3>
               <p className="text-xl text-white font-bold mb-8">
-                Contactanos por WhatsApp y te ayudamos a elegir tu estilo
+                Contactanos por WhatsApp y te ayudamos a elegir el modelo que
+                mejor te represente.
               </p>
               <button
-                onClick={() =>
-                  window.open("https://wa.me/18295337077", "_blank")
-                }
                 className="bg-white text-[#0A0A0A] px-12 py-6 text-2xl font-black hover:scale-110 transition-transform uppercase inline-flex items-center gap-3"
+                onClick={() =>
+                  window.open("https://wa.me/18295237077", "_blank")
+                }
               >
                 <span>💬</span>
                 Chatear Ahora
