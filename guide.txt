@@ -1,0 +1,84 @@
+Guía para incluir la tipografía personalizada "BOOMSTER" en el header de URBLIFT
+
+Para aplicar la fuente OTF "BOOMSTER.otf" al texto "URBLIFT" en el header (Navigation.jsx), sigue estos pasos:
+
+1. Importar la fuente en el archivo app/layout.js:
+   - Agrega la importación de la fuente local usando next/font/local.
+   - Define la fuente con el src apuntando a "/Font/BOOMSTER.otf".
+   - Crea una variable CSS para la fuente (ej. --font-boomster).
+
+   Ejemplo:
+   ```javascript
+   import local from 'next/font/local';
+
+   const boomster = local({
+     src: '/Font/BOOMSTER.otf',
+     variable: '--font-boomster',
+   });
+   ```
+
+2. Actualizar el archivo app/globals.css:
+   - Agrega la definición de la fuente en el bloque @theme inline o en :root.
+   - Usa la variable CSS definida en layout.js.
+
+   Ejemplo en app/globals.css:
+   ```css
+   @theme inline {
+     --font-boomster: var(--font-boomster);
+   }
+   ```
+
+3. Aplicar la fuente en app/components/Navigation.jsx:
+   - En el elemento <span> que contiene "URBLIFT", agrega la clase de Tailwind o estilo inline para usar la fuente personalizada.
+   - Por ejemplo, agrega style={{ fontFamily: 'var(--font-boomster)' }} o una clase personalizada.
+
+   Ejemplo en Navigation.jsx:
+   ```jsx
+   <span
+     className="text-4xl md:text-5xl font-black text-white uppercase"
+     style={{ fontFamily: 'var(--font-boomster)', textShadow: "3px 3px 0 #FF5722" }}
+   >
+     URBLIFT
+   </span>
+   ```
+
+4. Verificar que la fuente se carga correctamente:
+   - Asegúrate de que el archivo OTF esté en public/Font/BOOMSTER.otf.
+   - Prueba la aplicación para confirmar que la fuente se aplica sin errores.
+
+Nota: Si hay problemas con la carga de la fuente, revisa la configuración de next.config.mjs para permitir archivos OTF si es necesario. Agrega la siguiente configuración de webpack en next.config.mjs:
+
+Ejemplo en next.config.mjs:
+```javascript
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactCompiler: true,
+  turbopack: {
+    root: __dirname,
+  },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.(otf)$/,
+      use: [
+        {
+          loader: 'file-loader',
+          options: {
+            publicPath: '/_next/static/fonts/',
+            outputPath: 'static/fonts/',
+          },
+        },
+      ],
+    });
+    return config;
+  },
+};
+
+export default nextConfig;
+```
+
+Asegúrate de que el path en el import sea exactamente '/Font/BOOMSTER.otf' (con mayúscula F y B).

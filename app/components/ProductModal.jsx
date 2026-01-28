@@ -2,12 +2,18 @@
 import { X, Plus, Minus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-export default function ProductModal({ product, onClose, onAddToCart }) {
+export default function ProductModal({
+  product,
+  setSelectedProduct,
+  addToCart,
+}) {
   const [selectedSize, setSelectedSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   if (!product) return null;
+
+  const onClose = () => setSelectedProduct(null);
 
   const sizes = product.sizes || ["XS", "S", "M", "L", "XL", "XXL"];
   const images =
@@ -16,11 +22,11 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
       : [{ image_url: product.main_image_url }];
 
   const handleAddToCart = () => {
-    onAddToCart({
+    addToCart({
       ...product,
       selectedSize,
       quantity,
-      cartId: `${product.id}-${selectedSize}`, // ID único por producto + talla
+      cartId: `${product.id}-${selectedSize}`,
     });
     onClose();
   };
@@ -39,7 +45,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
       onClick={onClose}
     >
       <div
-        className="bg-[#1a1a1a] max-w-6xl w-full max-h-[95vh] overflow-y-auto border-4 border-[#FF5722]"
+        className="bg-[#1a1a1a] max-w-6xl w-full max-h-[95vh] overflow-y-auto border border-white/20"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="grid md:grid-cols-2 gap-0">
@@ -54,7 +60,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
             {/* Slider principal */}
             <div className="relative mb-4 group">
-              <div className="relative h-[400px] md:h-[550px] bg-[#0A0A0A] flex items-center justify-center overflow-hidden rounded-lg">
+              <div className="relative h-[400px] md:h-[550px] bg-[#0A0A0A] flex items-center justify-center overflow-hidden">
                 <img
                   src={
                     images[selectedImageIndex]?.image_url ||
@@ -98,10 +104,10 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                   <button
                     key={idx}
                     onClick={() => setSelectedImageIndex(idx)}
-                    className={`border-4 transition-all overflow-hidden rounded-lg hover:scale-105 ${
+                    className={`border-2 transition-all overflow-hidden hover:scale-105 ${
                       selectedImageIndex === idx
                         ? "border-[#FF5722] scale-105"
-                        : "border-gray-700 hover:border-[#76FF03]"
+                        : "border-white/20 hover:border-[#76FF03]"
                     }`}
                   >
                     <img
@@ -113,37 +119,21 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                 ))}
               </div>
             )}
-
-            {/* Swipe indicators para mobile */}
-            {images.length > 1 && (
-              <div className="flex justify-center gap-2 mt-4 md:hidden">
-                {images.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImageIndex(idx)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      selectedImageIndex === idx
-                        ? "bg-[#FF5722] w-8"
-                        : "bg-gray-600"
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Columna de información */}
           <div className="p-6 md:p-8 bg-[#1a1a1a]">
-            {/* Badge de categoría */}
-            <div className="inline-block bg-[#76FF03] text-[#0A0A0A] px-4 py-2 mb-4 font-black uppercase text-sm transform -rotate-1 shadow-lg">
-              {product.style_tag}
-            </div>
-
-            {product.is_new && (
-              <div className="inline-block bg-[#FF5722] text-white px-4 py-2 mb-4 ml-2 font-black uppercase text-sm transform rotate-1 shadow-lg">
-                NUEVO
+            {/* Badges */}
+            <div className="flex gap-2 mb-4">
+              <div className="bg-[#76FF03] text-[#0A0A0A] px-4 py-2 font-black uppercase text-xs">
+                {product.style_tag}
               </div>
-            )}
+              {product.is_new && (
+                <div className="bg-[#FF5722] text-white px-4 py-2 font-black uppercase text-xs">
+                  NUEVO
+                </div>
+              )}
+            </div>
 
             {/* Nombre del producto */}
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4 uppercase leading-tight">
@@ -151,7 +141,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
             </h2>
 
             {/* Descripción */}
-            <p className="text-gray-300 text-base md:text-lg mb-6 font-bold leading-relaxed">
+            <p className="text-white/70 text-base md:text-lg mb-6 font-medium leading-relaxed">
               {product.description}
             </p>
 
@@ -162,10 +152,10 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
               </span>
               {product.old_price && (
                 <>
-                  <span className="text-2xl text-gray-500 line-through font-bold">
+                  <span className="text-2xl text-white/30 line-through font-bold">
                     ${product.old_price}
                   </span>
-                  <span className="bg-[#76FF03] text-[#0A0A0A] px-3 py-1 font-black text-sm uppercase rounded">
+                  <span className="bg-[#76FF03] text-[#0A0A0A] px-3 py-1 font-black text-xs uppercase">
                     AHORRÁ ${(product.old_price - product.price).toFixed(2)}
                   </span>
                 </>
@@ -182,17 +172,17 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`py-3 font-black text-lg uppercase transition-all border-2 rounded-lg ${
+                    className={`py-3 font-black text-lg uppercase transition-all border-2 ${
                       selectedSize === size
-                        ? "bg-[#FF5722] text-white border-[#FF5722] scale-110 shadow-lg"
-                        : "bg-[#0A0A0A] text-white border-gray-700 hover:border-[#76FF03] hover:scale-105"
+                        ? "bg-[#FF5722] text-white border-[#FF5722] scale-110"
+                        : "bg-[#0A0A0A] text-white border-white/20 hover:border-[#76FF03] hover:scale-105"
                     }`}
                   >
                     {size}
                   </button>
                 ))}
               </div>
-              <p className="text-gray-400 text-sm mt-2 font-bold">
+              <p className="text-white/50 text-sm mt-2 font-medium">
                 Talla seleccionada:{" "}
                 <span className="text-[#76FF03]">{selectedSize}</span>
               </p>
@@ -206,7 +196,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="bg-[#0A0A0A] text-white p-4 hover:bg-[#FF5722] transition-colors border-2 border-gray-700 rounded-lg hover:scale-110"
+                  className="bg-[#0A0A0A] text-white p-4 hover:bg-[#FF5722] transition-colors border-2 border-white/20 hover:scale-110"
                 >
                   <Minus className="w-5 h-5" />
                 </button>
@@ -215,7 +205,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                 </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="bg-[#0A0A0A] text-white p-4 hover:bg-[#76FF03] hover:text-[#0A0A0A] transition-colors border-2 border-gray-700 rounded-lg hover:scale-110"
+                  className="bg-[#0A0A0A] text-white p-4 hover:bg-[#76FF03] hover:text-[#0A0A0A] transition-colors border-2 border-white/20 hover:scale-110"
                 >
                   <Plus className="w-5 h-5" />
                 </button>
@@ -223,23 +213,23 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
             </div>
 
             {/* Información adicional */}
-            <div className="mb-8 p-4 bg-[#0A0A0A] border-l-4 border-[#76FF03] rounded-r-lg">
-              <ul className="space-y-2 text-gray-300 font-bold text-sm">
-                <li className="flex items-center gap-2">
-                  <span className="text-[#76FF03]">✓</span>
-                  Envío gratis en compras mayores a $50
+            <div className="mb-8 p-4 bg-[#0A0A0A] border-l-4 border-[#76FF03]">
+              <ul className="space-y-2 text-white/70 text-sm font-medium">
+                <li className="flex items-start gap-3">
+                  <span className="text-[#76FF03] mt-1 text-xs">■</span>
+                  <span>Envío gratis en compras mayores a $150</span>
                 </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-[#76FF03]">✓</span>
-                  Material 100% algodón premium
+                <li className="flex items-start gap-3">
+                  <span className="text-[#76FF03] mt-1 text-xs">■</span>
+                  <span>Material de alta calidad y durabilidad</span>
                 </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-[#76FF03]">✓</span>
-                  Diseño exclusivo URBLIFT
+                <li className="flex items-start gap-3">
+                  <span className="text-[#76FF03] mt-1 text-xs">■</span>
+                  <span>Diseño exclusivo de URBLIFT</span>
                 </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-[#76FF03]">✓</span>
-                  Garantía de satisfacción 30 días
+                <li className="flex items-start gap-3">
+                  <span className="text-[#76FF03] mt-1 text-xs">■</span>
+                  <span>Garantía de satisfacción 15 días</span>
                 </li>
               </ul>
             </div>
@@ -248,12 +238,12 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
             <div className="space-y-4">
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-[#FF5722] text-white py-6 text-xl md:text-2xl font-black hover:scale-105 transition-transform uppercase rounded-lg shadow-lg"
+                className="w-full bg-[#FF5722] text-white py-6 text-xl md:text-2xl font-black hover:scale-105 transition-transform uppercase"
                 style={{
                   clipPath: "polygon(2% 0%, 100% 0%, 98% 100%, 0% 100%)",
                 }}
               >
-                Agregar al Carrito - ${(product.price * quantity).toFixed(2)}
+                AGREGAR AL CARRITO - ${(product.price * quantity).toFixed(2)}
               </button>
 
               <div className="flex gap-4">
@@ -263,27 +253,27 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                     await navigator.clipboard.writeText(url);
                     const Swal = (await import("sweetalert2")).default;
                     Swal.fire({
-                      title: "¡Copiado!",
-                      text: "Link del producto copiado al portapapeles",
+                      title: "Copiado",
+                      text: "Link del producto copiado",
                       icon: "success",
                       background: "#1a1a1a",
                       color: "#ffffff",
                       confirmButtonColor: "#FF5722",
-                      confirmButtonText: "¡Perfecto!",
+                      confirmButtonText: "Perfecto",
                       timer: 2000,
                       timerProgressBar: true,
                     });
                   }}
-                  className="flex-1 bg-[#76FF03] text-[#0A0A0A] py-4 text-lg font-black hover:scale-105 transition-transform uppercase rounded-lg"
+                  className="flex-1 bg-[#76FF03] text-[#0A0A0A] py-4 text-lg font-black hover:scale-105 transition-transform uppercase"
                 >
-                  📤 Compartir
+                  COMPARTIR
                 </button>
 
                 <button
                   onClick={onClose}
-                  className="flex-1 border-4 border-[#76FF03] text-[#76FF03] py-4 text-lg font-black hover:bg-[#76FF03] hover:text-[#0A0A0A] transition-all uppercase rounded-lg"
+                  className="flex-1 border-2 border-[#76FF03] text-[#76FF03] py-4 text-lg font-black hover:bg-[#76FF03] hover:text-[#0A0A0A] transition-all uppercase"
                 >
-                  Seguir Comprando
+                  SEGUIR COMPRANDO
                 </button>
               </div>
             </div>

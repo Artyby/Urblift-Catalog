@@ -9,7 +9,7 @@ export default function Navigation({
   setIsCartOpen,
   isAdmin,
 }) {
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = (cart || []).reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <header className="sticky top-0 z-50 bg-[#0A0A0A] border-b-4 border-[#FF5722] shadow-lg">
@@ -20,16 +20,20 @@ export default function Navigation({
             className="flex items-center gap-3 hover:scale-105 transition-transform"
           >
             <span
-              className="text-4xl md:text-5xl font-black text-white uppercase"
-              style={{ textShadow: "3px 3px 0 #FF5722" }}
+              className="text-5xl md:text-5xl font-black text-white uppercase"
+              // style={{ textShadow: "3px 3px 0 #FF5722" }}
+              style={{
+                fontFamily: "var(--font-boomster)",
+                textShadow: "3px 3px 0 #FF5722",
+              }}
             >
               URBLIFT
             </span>
-            <img
+            {/* <img
               src="/Logo.svg"
               alt="URBLIFT Logo"
               className="w-15 h-15 md:w-22 md:h-22"
-            />
+            /> */}
           </button>
 
           {/* Nav desktop */}
@@ -68,7 +72,7 @@ export default function Navigation({
             <ShoppingCart className="w-5 h-5" />
             <span className="hidden sm:inline">CARRITO</span>
             {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-[#76FF03] text-[#0A0A0A] w-7 h-7 rounded-full flex items-center justify-center text-sm font-black animate-bounce">
+              <span className="absolute top-0 -right-2 bg-[#76FF03] text-[#0A0A0A] w-7 h-7 rounded-full flex items-center justify-center text-sm font-black animate-bounce">
                 {totalItems}
               </span>
             )}

@@ -1,3 +1,4 @@
+// Nest.js configuration file
 import { fileURLToPath } from "url";
 import path from "path";
 

@@ -22,7 +22,7 @@ function UrbLiftCatalogContent() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStyleTag, setSelectedStyleTag] = useState("all");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // ✅ Vuelve a true para mostrar loader inmediatamente
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [newProduct, setNewProduct] = useState({
@@ -41,7 +41,83 @@ function UrbLiftCatalogContent() {
     message: "",
   });
 
+  // Estados del loader
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [colorReady, setColorReady] = useState(false); // ✅ Nuevo estado
+
+  // Colores de la marca
+  const brandColors = [
+    {
+      primary: "#FF5722", // Naranja
+      shadow: "rgba(255, 87, 34, 0.5)",
+      gradient: ["#FF5722", "#ff8a50"],
+    },
+    {
+      primary: "#00C853", // Verde intenso
+      shadow: "rgba(0, 200, 83, 0.5)",
+      gradient: ["#00C853", "#00E676"],
+    },
+    {
+      primary: "#2196F3", // Azul
+      shadow: "rgba(33, 150, 243, 0.5)",
+      gradient: ["#2196F3", "#42A5F5"],
+    },
+  ];
+
+  const [currentColor, setCurrentColor] = useState(brandColors[0]); // ✅ Inicia con el primer color (sin random)
+
+  const phrases = [
+    "Preparando tu experiencia urbana...",
+    "Conectando con la ciudad...",
+    "Cargando eventos exclusivos...",
+    "Construyendo tu comunidad...",
+    "Activando el modo URBLIFT...",
+  ];
+
   const ADMIN_PASSWORD = "urblift2024";
+
+  // Selecciona un color aleatorio solo en el cliente
+  useEffect(() => {
+    setIsClient(true);
+    setIsMounted(true);
+    // ✅ Seleccionar color aleatorio SOLO en el cliente (después de montar)
+    const randomColor =
+      brandColors[Math.floor(Math.random() * brandColors.length)];
+    setCurrentColor(randomColor);
+    setColorReady(true); // ✅ Marcar que el color está listo
+  }, []);
+
+  // Rotación de frases
+  useEffect(() => {
+    if (!isLoading) return;
+
+    const interval = setInterval(() => {
+      setPhraseIndex((prev) => (prev + 1) % phrases.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [isLoading]);
+
+  // ✅ CORRECCIÓN: Efecto para manejar el fade out
+  useEffect(() => {
+    if (!isLoading) {
+      // Cuando termina de cargar, activar fade out inmediatamente
+      setIsFadingOut(true);
+
+      // Después del fade out, desactivarlo
+      const timer = setTimeout(() => {
+        setIsFadingOut(false);
+      }, 700); // Duración del fade out (igual a la transición CSS)
+
+      return () => clearTimeout(timer);
+    } else {
+      // Si vuelve a cargar, resetear fade out
+      setIsFadingOut(false);
+    }
+  }, [isLoading]);
 
   // Verificar hash para acceso admin y parámetros de producto
   useEffect(() => {
@@ -49,19 +125,17 @@ function UrbLiftCatalogContent() {
       setCurrentPage("admin");
     }
 
-    // Verificar si hay un producto en la URL
     const productId = searchParams.get("product");
     if (productId && products.length > 0) {
       const product = products.find((p) => p.id === productId);
       if (product) {
         setSelectedProduct(product);
         setCurrentPage("catalog");
-        // Limpiar la URL después de abrir el modal
         setTimeout(() => {
           window.history.replaceState(
             {},
             document.title,
-            window.location.pathname
+            window.location.pathname,
           );
         }, 100);
       }
@@ -89,7 +163,6 @@ function UrbLiftCatalogContent() {
         setProducts(productsData);
       } catch (error) {
         console.error("Error loading products:", error);
-        // Fallback a datos locales si falla Supabase
         try {
           const stored = localStorage.getItem("urblift_products");
           if (stored) {
@@ -99,11 +172,18 @@ function UrbLiftCatalogContent() {
           console.error("Fallback error:", fallbackError);
         }
       } finally {
-        setIsLoading(false);
+        // ✅ Solo desactivar loading si ya estamos montados en el cliente
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
-    loadProducts();
-  }, []);
+
+    // ✅ Solo cargar productos cuando el componente esté montado
+    if (isMounted) {
+      loadProducts();
+    }
+  }, [isMounted]);
 
   // Cargar carrito desde Supabase
   useEffect(() => {
@@ -114,7 +194,6 @@ function UrbLiftCatalogContent() {
         setCart(cartItems);
       } catch (error) {
         console.error("Error loading cart:", error);
-        // Fallback a localStorage
         try {
           const stored = localStorage.getItem("urblift_cart");
           if (stored) setCart(JSON.parse(stored));
@@ -128,7 +207,6 @@ function UrbLiftCatalogContent() {
 
   const saveCart = async (newCart) => {
     try {
-      // For now, keep localStorage as backup, but in future could sync to Supabase
       localStorage.setItem("urblift_cart", JSON.stringify(newCart));
       setCart(newCart);
     } catch (error) {
@@ -138,8 +216,6 @@ function UrbLiftCatalogContent() {
 
   const saveProducts = async (newProducts) => {
     try {
-      // For admin operations, we still use localStorage for now
-      // In a full implementation, this would sync with Supabase
       localStorage.setItem("urblift_products", JSON.stringify(newProducts));
       setProducts(newProducts);
     } catch (error) {
@@ -157,7 +233,7 @@ function UrbLiftCatalogContent() {
       newCart = cart.map((item) =>
         item.cartId === cartId
           ? { ...item, quantity: item.quantity + (product.quantity || 1) }
-          : item
+          : item,
       );
     } else {
       newCart = [
@@ -174,7 +250,6 @@ function UrbLiftCatalogContent() {
     setCart(newCart);
     saveCart(newCart);
 
-    // Feedback visual con SweetAlert2
     const Swal = (await import("sweetalert2")).default;
     Swal.fire({
       title: "¡Producto agregado!",
@@ -227,13 +302,13 @@ function UrbLiftCatalogContent() {
         (item) =>
           `${item.name} talla ${item.selectedSize}, cantidad ${
             item.quantity
-          } - $${(item.price * item.quantity).toFixed(2)}`
+          } - $${(item.price * item.quantity).toFixed(2)}`,
       )
       .join(", ");
 
     const message = `Hola! Quiero hacer un pedido de: ${orderText}. Total: $${calculateTotal()}. ¿Podemos proceder?`;
     const whatsappUrl = `https://wa.me/18295237077?text=${encodeURIComponent(
-      message
+      message,
     )}`;
     window.open(whatsappUrl, "_blank");
   };
@@ -242,7 +317,7 @@ function UrbLiftCatalogContent() {
     const message = `Hola! Soy ${contactForm.name}, mi email es ${contactForm.email}. ${contactForm.message}`;
     window.open(
       `https://wa.me/18295237077?text=${encodeURIComponent(message)}`,
-      "_blank"
+      "_blank",
     );
     setContactForm({ name: "", email: "", message: "" });
   };
@@ -293,7 +368,7 @@ function UrbLiftCatalogContent() {
         main_image_url: newProduct.main_image_url,
         style_tag: newProduct.style_tag,
         sizes: newProduct.sizes,
-        images: newProduct.images.filter((url) => url.trim() !== ""), // Filter out empty URLs
+        images: newProduct.images.filter((url) => url.trim() !== ""),
       };
 
       const createdProduct = await productService.createProduct(productData);
@@ -362,15 +437,15 @@ function UrbLiftCatalogContent() {
         main_image_url: editingProduct.main_image_url,
         style_tag: editingProduct.style_tag,
         sizes: editingProduct.sizes,
-        images: editingProduct.images.filter((url) => url.trim() !== ""), // Filter out empty URLs
+        images: editingProduct.images.filter((url) => url.trim() !== ""),
       };
 
       await productService.updateProduct(editingProduct.id, productData);
 
       setProducts(
         products.map((p) =>
-          p.id === editingProduct.id ? { ...p, ...productData } : p
-        )
+          p.id === editingProduct.id ? { ...p, ...productData } : p,
+        ),
       );
 
       setEditingProduct(null);
@@ -460,8 +535,8 @@ function UrbLiftCatalogContent() {
 
       setProducts(
         products.map((p) =>
-          p.id === productId ? { ...p, is_available: !p.is_available } : p
-        )
+          p.id === productId ? { ...p, is_available: !p.is_available } : p,
+        ),
       );
     } catch (error) {
       console.error("Error updating product:", error);
@@ -486,23 +561,150 @@ function UrbLiftCatalogContent() {
     return matchesSearch && matchesStyle && product.is_available;
   });
 
-  if (isLoading) {
+  // ✅ LOADER ANIMADO - Visible mientras carga O durante el fade out
+  if (isLoading || isFadingOut) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center gap-0">
-        <img
-          src="/Logo.svg"
-          alt="URBLIFT Logo"
-          className="w-85 h-85 animate-bounce m-0"
-        />
-        <div className="text-[#FF5722] text-6xl font-black animate-pulse -mt-4">
-          URBLIFT
+      <div
+        className={`min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1a1a1a] to-[#0A0A0A] flex flex-col items-center justify-center gap-8 relative overflow-hidden transition-opacity duration-700 ${
+          !isLoading && isFadingOut ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        {/* Animated background elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div
+            className="absolute top-20 left-20 w-64 h-64 rounded-full blur-[100px] animate-pulse"
+            style={{ backgroundColor: currentColor.primary }}
+          ></div>
+          <div
+            className="absolute bottom-20 right-20 w-96 h-96 rounded-full blur-[120px] animate-pulse delay-700"
+            style={{ backgroundColor: currentColor.primary }}
+          ></div>
         </div>
+
+        {/* Logo Container */}
+        <div
+          className={`relative z-10 flex flex-col items-center gap-6 transition-all duration-700 ${
+            !isLoading && isFadingOut ? "scale-95 blur-sm" : "scale-100 blur-0"
+          }`}
+        >
+          {/* Logo with glow effect */}
+          <div className="relative group">
+            <div
+              className="absolute inset-0 blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 animate-pulse"
+              style={{ backgroundColor: currentColor.primary }}
+            ></div>
+            <img
+              src="/Logo.svg"
+              alt="URBLIFT Logo"
+              className="w-32 h-32 relative z-10"
+              style={{
+                filter: `drop-shadow(0 0 25px ${currentColor.shadow})`,
+              }}
+            />
+          </div>
+
+          {/* Brand Name with Boomster font */}
+          <div className="relative">
+            <h1
+              className="text-7xl md:text-8xl font-black tracking-wider relative z-10"
+              style={{
+                fontFamily: "var(--font-boomster)",
+                color: currentColor.primary,
+                textShadow: `
+                0 0 10px ${currentColor.shadow},
+                0 0 20px ${currentColor.shadow.replace("0.5", "0.3")},
+                0 0 30px ${currentColor.shadow.replace("0.5", "0.2")},
+                4px 4px 0px #000000,
+                5px 5px 0px ${currentColor.shadow.replace("0.5", "0.3")}
+              `,
+              }}
+            >
+              URBLIFT
+            </h1>
+            {/* Animated underline */}
+            <div
+              className="h-1 animate-shimmer mt-2"
+              style={{
+                background: `linear-gradient(to right, transparent, ${currentColor.primary}, transparent)`,
+              }}
+            ></div>
+          </div>
+
+          {/* Loading text */}
+          <div className="flex items-center gap-3 mt-4">
+            <p className="text-white text-lg font-medium tracking-widest animate-pulse">
+              CARGANDO
+            </p>
+            <div className="flex gap-1">
+              <span
+                className="w-2 h-2 rounded-full animate-bounce"
+                style={{ backgroundColor: currentColor.primary }}
+              ></span>
+              <span
+                className="w-2 h-2 rounded-full animate-bounce delay-100"
+                style={{ backgroundColor: currentColor.primary }}
+              ></span>
+              <span
+                className="w-2 h-2 rounded-full animate-bounce delay-200"
+                style={{ backgroundColor: currentColor.primary }}
+              ></span>
+            </div>
+          </div>
+
+          {/* Rotating phrases with fade effect */}
+          <div className="relative h-8 mt-4 overflow-hidden w-80">
+            <p
+              key={phraseIndex}
+              className="text-gray-400 text-base font-light tracking-wide text-center absolute w-full animate-fadeInOut"
+              style={{
+                textShadow: `0 0 10px ${currentColor.shadow.replace("0.5", "0.3")}`,
+              }}
+            >
+              {phrases[phraseIndex]}
+            </p>
+          </div>
+        </div>
+
+        {/* Urban style corner decorations */}
+        <div
+          className={`absolute top-8 left-8 w-16 h-16 border-l-4 border-t-4 opacity-30 transition-all duration-700 ${
+            !isLoading && isFadingOut
+              ? "opacity-0 -translate-x-4 -translate-y-4"
+              : ""
+          }`}
+          style={{ borderColor: currentColor.primary }}
+        ></div>
+        <div
+          className={`absolute top-8 right-8 w-16 h-16 border-r-4 border-t-4 opacity-30 transition-all duration-700 ${
+            !isLoading && isFadingOut
+              ? "opacity-0 translate-x-4 -translate-y-4"
+              : ""
+          }`}
+          style={{ borderColor: currentColor.primary }}
+        ></div>
+        <div
+          className={`absolute bottom-8 left-8 w-16 h-16 border-l-4 border-b-4 opacity-30 transition-all duration-700 ${
+            !isLoading && isFadingOut
+              ? "opacity-0 -translate-x-4 translate-y-4"
+              : ""
+          }`}
+          style={{ borderColor: currentColor.primary }}
+        ></div>
+        <div
+          className={`absolute bottom-8 right-8 w-16 h-16 border-r-4 border-b-4 opacity-30 transition-all duration-700 ${
+            !isLoading && isFadingOut
+              ? "opacity-0 translate-x-4 translate-y-4"
+              : ""
+          }`}
+          style={{ borderColor: currentColor.primary }}
+        ></div>
       </div>
     );
   }
 
+  // ✅ CONTENIDO PRINCIPAL - después del loader
   return (
-    <div>
+    <div className="min-h-screen bg-[#0A0A0A] text-white">
       <Navigation
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
@@ -512,36 +714,26 @@ function UrbLiftCatalogContent() {
       />
 
       {currentPage === "landing" && (
-        <>
-          <LandingPage setCurrentPage={setCurrentPage} />
-          <Footer />
-        </>
+        <LandingPage setCurrentPage={setCurrentPage} />
       )}
 
       {currentPage === "catalog" && (
-        <>
-          <CatalogPage
-            products={filteredProducts}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            selectedStyleTag={selectedStyleTag}
-            setSelectedStyleTag={setSelectedStyleTag}
-            onSelectProduct={setSelectedProduct}
-            onAddToCart={addToCart}
-          />
-          <Footer />
-        </>
+        <CatalogPage
+          products={filteredProducts}
+          setSelectedProduct={setSelectedProduct}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          selectedStyleTag={selectedStyleTag}
+          setSelectedStyleTag={setSelectedStyleTag}
+        />
       )}
 
       {currentPage === "contact" && (
-        <>
-          <ContactPage
-            contactForm={contactForm}
-            setContactForm={setContactForm}
-            sendContactForm={sendContactForm}
-          />
-          <Footer />
-        </>
+        <ContactPage
+          contactForm={contactForm}
+          setContactForm={setContactForm}
+          sendContactForm={sendContactForm}
+        />
       )}
 
       {currentPage === "admin" && (
@@ -554,26 +746,31 @@ function UrbLiftCatalogContent() {
           newProduct={newProduct}
           setNewProduct={setNewProduct}
           createProduct={createProduct}
-          deleteProduct={deleteProduct}
-          toggleProductAvailability={toggleProductAvailability}
           editingProduct={editingProduct}
           setEditingProduct={setEditingProduct}
           updateProduct={updateProduct}
           cancelEditing={cancelEditing}
+          deleteProduct={deleteProduct}
+          toggleProductAvailability={toggleProductAvailability}
         />
       )}
 
-      <ProductModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        onAddToCart={addToCart}
-      />
+      <Footer setCurrentPage={setCurrentPage} />
+
+      {selectedProduct && (
+        <ProductModal
+          product={selectedProduct}
+          setSelectedProduct={setSelectedProduct}
+          addToCart={addToCart}
+        />
+      )}
 
       <CartSidebar
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
         cart={cart}
+        isCartOpen={isCartOpen}
+        setIsCartOpen={setIsCartOpen}
         updateQuantity={updateQuantity}
+        removeFromCart={removeFromCart}
         calculateTotal={calculateTotal}
         sendWhatsAppOrder={sendWhatsAppOrder}
       />
