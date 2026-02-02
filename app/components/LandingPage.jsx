@@ -27,7 +27,7 @@ export default function LandingPage({ setCurrentPage }) {
             <div className="relative">
               <div className="absolute inset-0 bg-[#FF5722] blur-lg opacity-50" />
               <span className="relative bg-[#FF5722] text-white px-8 py-3 font-black text-base uppercase tracking-widest transform -rotate-2 inline-block shadow-2xl border-2 border-white">
-                DROP 2025 DISPONIBLE
+                DROP 2026 DISPONIBLE
               </span>
             </div>
           </div>
@@ -139,7 +139,7 @@ export default function LandingPage({ setCurrentPage }) {
             <div className="group relative overflow-hidden bg-[#0A0A0A] border border-white/10 hover:border-[#76FF03] transition-all duration-500">
               <div className="aspect-[3/4] overflow-hidden relative">
                 <img
-                  src="https://ik.imagekit.io/Glatevix/UrbLift/GOOD_PASTOR_TEE_EXPRESSION_II_GreenTEe_ModeloBack.png?updatedAt=1767751270188"
+                  src="https://ik.imagekit.io/Glatevix/UrbLift/ExpressionBlackGreyTEEFoto.png?updatedAt=1766895669428"
                   alt="Good Pastor Tee - Green"
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
@@ -174,7 +174,7 @@ export default function LandingPage({ setCurrentPage }) {
             <div className="group relative overflow-hidden bg-[#0A0A0A] border border-white/10 hover:border-[#FF5722] transition-all duration-500">
               <div className="aspect-[3/4] overflow-hidden relative">
                 <img
-                  src="https://ik.imagekit.io/Glatevix/UrbLift/GOOD_PASTOR_TEE_EXPRESSION_II_Model.png?updatedAt=1767751296173"
+                  src="https://ik.imagekit.io/Glatevix/UrbLift/ExpresssionWhiteTeeModelOne.jpeg?updatedAt=1766895667630"
                   alt="Good Pastor Tee - Black"
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
@@ -201,7 +201,7 @@ export default function LandingPage({ setCurrentPage }) {
             <div className="group relative overflow-hidden bg-[#0A0A0A] border border-white/10 hover:border-[#00BCD4] transition-all duration-500">
               <div className="aspect-[3/4] overflow-hidden relative">
                 <img
-                  src="https://ik.imagekit.io/Glatevix/UrbLift/ExpressionModelsTWo.jpeg?updatedAt=1766895667675"
+                  src="https://ik.imagekit.io/Glatevix/UrbLift/URBLIFTNEWLOGO.png?updatedAt=1769988506525"
                   alt="Expression Collection"
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />

@@ -161,11 +161,11 @@ export default function Footer({ setCurrentPage }) {
               ÚNETE A LA COMUNIDAD
             </h4>
             <p className="text-white/60 mb-6 font-medium text-sm">
-              Recibe nuevos drops, ofertas exclusivas y contenido directo a tu
-              WhatsApp
+              Recibe nuevos drops, ofertas exclusivas y contenido directo y
+              promocional en nuestro canal de WhatsApp.
             </p>
             <a
-              href="https://wa.me/18295237077?text=Hola! Quiero unirme a la comunidad URBLIFT"
+              href="https://whatsapp.com/channel/0029Vb7HeSSDjiOgjBA8N72w"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 bg-[#FF5722] text-white px-8 py-4 font-black uppercase hover:scale-105 transition-all"
