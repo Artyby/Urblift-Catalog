@@ -82,7 +82,10 @@ export default function ProductCard({ product, onSelect }) {
         <h3 className="text-white text-lg font-black uppercase mb-2 group-hover:text-[#76FF03] transition-colors line-clamp-1">
           {product.name}
         </h3>
-        <p className="text-white/50 text-sm font-medium mb-4 line-clamp-2">
+        <p
+          className="text-white/50 text-sm font-medium mb-4 line-clamp-2"
+          style={{ whiteSpace: "pre-wrap" }}
+        >
           {product.description}
         </p>
 
