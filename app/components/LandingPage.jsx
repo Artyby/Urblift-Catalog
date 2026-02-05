@@ -139,7 +139,7 @@ export default function LandingPage({ setCurrentPage }) {
             <div className="group relative overflow-hidden bg-[#0A0A0A] border border-white/10 hover:border-[#76FF03] transition-all duration-500">
               <div className="aspect-[3/4] overflow-hidden relative">
                 <img
-                  src="https://ik.imagekit.io/Glatevix/UrbLift/ExpressionBlackGreyTEEFoto.png?updatedAt=1766895669428"
+                  src="https://ik.imagekit.io/urblift/LAMBANDLION/REDEEMED%20DUALITY%20Hoodies/ChatGPT%20Image%203%20feb%202026,%2006_29_51%20p.m..png"
                   alt="Good Pastor Tee - Green"
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
